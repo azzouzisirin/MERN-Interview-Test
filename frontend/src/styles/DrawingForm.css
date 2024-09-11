@@ -1,0 +1,17 @@
+.drawing-form {
+    margin: 20px;
+  }
+  
+  .drawing-form label {
+    display: block;
+    margin-bottom: 10px;
+  }
+  
+  .drawing-form input {
+    margin-right: 10px;
+  }
+  
+  button {
+    margin-top: 10px;
+  }
+  

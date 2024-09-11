@@ -1,0 +1,10 @@
+.drawing-viewer {
+    text-align: center;
+    padding: 20px;
+  }
+  
+  .drawing-viewer img {
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  
