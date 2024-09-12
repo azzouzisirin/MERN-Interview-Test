@@ -30,7 +30,7 @@ const sampleDrawings = [
 ];
 
 // Connect to MongoDB and insert sample data
-mongoose.connect('mongodb://localhost:27017/whiteboard', {  })
+mongoose.connect(process.env.MONGODB_URI, {  })
     .then(async () => {
         console.log('Connected to MongoDB');
         
