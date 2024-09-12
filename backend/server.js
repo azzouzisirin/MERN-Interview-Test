@@ -5,7 +5,8 @@ const drawingsRoutes = require('./routes/drawings');
 require('dotenv').config();
 const cors = require('cors');
 const http = require('http');
-
+const morgan = require('morgan');
+const winston = require('winston');
 const app = express();
 
 // Middleware
@@ -19,6 +20,7 @@ mongoose.connect(process.env.MONGODB_URI, {
 .then(() => console.log('MongoDB connected'))
 .catch(err => console.error('MongoDB connection error:', err));
 const server = http.createServer(app);
+app.use(morgan('combined', { stream: winston.stream.write }));
 
 // Use routes
 app.use('/api', drawingsRoutes);
@@ -34,9 +36,9 @@ app.use((err, req, res, next) => {
     console.error(err.stack);
     res.status(500).send('Something broke!');
 });
- 
+winston.add(new winston.transports.File({ filename: 'error.log', level: 'error' }));
 // Start server
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
+server.listen(PORT, () => {
     console.log(`Server is running on port ${PORT}`);
 });

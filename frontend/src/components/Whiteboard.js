@@ -1,4 +1,4 @@
-import React, { useRef, useState, useEffect } from 'react';
+import React, { useRef, useState, useEffect, useCallback } from 'react';
 import { getDrawing } from '../services/api'; // Import the API function
 import { useParams } from 'react-router-dom'; // To get the drawing ID from the URL
 
@@ -11,7 +11,6 @@ const Whiteboard = () => {
   const [lineStart, setLineStart] = useState({ x: 0, y: 0 });
   const [shapeStart, setShapeStart] = useState({ x: 0, y: 0 });
   const [text, setText] = useState('');
-  const [textPosition, setTextPosition] = useState({ x: 0, y: 0 });
   const [drawingData, setDrawingData] = useState(null); // State to hold fetched drawing data
 
   useEffect(() => {
@@ -85,7 +84,6 @@ const Whiteboard = () => {
     } else if (drawingMode === 'shape') {
       setShapeStart({ x: offsetX, y: offsetY });
     } else if (drawingMode === 'text') {
-      setTextPosition({ x: offsetX, y: offsetY });
       setAnnotations([...annotations, { text, x: offsetX, y: offsetY }]);
       setText(''); // Clear the input field
     }
@@ -112,7 +110,13 @@ const Whiteboard = () => {
 
     context.beginPath();
     if (drawingMode === 'circle') {
-      context.arc(shapeStart.x, shapeStart.y, Math.sqrt(Math.pow(offsetX - shapeStart.x, 2) + Math.pow(offsetY - shapeStart.y, 2)), 0, 2 * Math.PI);
+      context.arc(
+        shapeStart.x,
+        shapeStart.y,
+        Math.sqrt(Math.pow(offsetX - shapeStart.x, 2) + Math.pow(offsetY - shapeStart.y, 2)),
+        0,
+        2 * Math.PI
+      );
       context.fill();
     } else if (drawingMode === 'rectangle') {
       context.fillRect(shapeStart.x, shapeStart.y, offsetX - shapeStart.x, offsetY - shapeStart.y);
@@ -127,7 +131,7 @@ const Whiteboard = () => {
     setText(e.target.value);
   };
 
-  const renderAnnotations = () => {
+  const renderAnnotations = useCallback(() => {
     const canvas = canvasRef.current;
     const context = canvas.getContext('2d');
 
@@ -136,11 +140,11 @@ const Whiteboard = () => {
       context.fillStyle = 'black';
       context.fillText(annotation.text, annotation.x, annotation.y);
     });
-  };
+  }, [annotations]);
 
   useEffect(() => {
     renderAnnotations();
-  }, [annotations]);
+  }, [renderAnnotations]); // renderAnnotations is now memoized and included as a dependency
 
   return (
     <div>
@@ -165,7 +169,13 @@ const Whiteboard = () => {
         height={600}
         style={{ border: '1px solid black' }}
         onMouseDown={startDrawing}
-        onMouseMove={drawingMode === 'line' ? drawLine : drawingMode === 'circle' || drawingMode === 'rectangle' ? drawShape : null}
+        onMouseMove={
+          drawingMode === 'line'
+            ? drawLine
+            : drawingMode === 'circle' || drawingMode === 'rectangle'
+            ? drawShape
+            : null
+        }
         onMouseUp={stopDrawing}
         onMouseLeave={stopDrawing}
       />
